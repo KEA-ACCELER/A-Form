@@ -75,8 +75,11 @@ spec:
       repositories:
         - owner: KEA-ACCELER
           names:
-            - argo-events
-            - argo-workflows
+            - A-Form_ReactJS_Front
+            - A-Form_Spring_User
+            - A-Form_NestJS_Survey
+            - A-Form_Spring_Post
+            - A-Form_Flask_AIModel
       # Github application auth. Instead of using personal token `apiToken` use app PEM            
       # githubApp:
       #   privateKey:

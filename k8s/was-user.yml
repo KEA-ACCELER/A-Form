@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-was-user
+  labels:
+    app: aform
+    tier: was-user
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aform
+      tier: was-user
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: was-user
+    spec:
+      nodeSelector:
+        type: worker
+      containers:
+      - name: aform-spring-user
+        image: docker-registry:5000/A-Form_Spring_User
+        env:
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:mysql://aform-was-user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+          - name: SPRING_DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_USERNAME
+                optional: false
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_PASSWORD
+                optional: false
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: JWT_SECRET
+                optional: false
+        ports:
+        - containerPort: 8080
+          name: was-user-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-was-user
+spec:
+  ports:
+  - name : afom-was-user-port
+    port: 8080
+    targetPort: was-user-http
+  selector:
+    app: aform
+    tier: was-user
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-user-db
+  labels:
+    app: aform
+    tier: user-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aform
+      tier: user-db
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: user-db
+    spec:
+      nodeSelector:
+        type: worker
+      containers:
+      - name: aform-spring-user-db
+        image: mysql
+        env:
+          - name: MYSQL_DATABASE
+            value: aform
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_PASSWORD
+                optional: false
+        ports:
+        - containerPort: 3306
+          name: user-db-mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-user-db
+spec:
+  ports:
+  - name : user-db-port
+    port: 3306
+    targetPort: user-db-mysql
+  selector:
+    app: aform
+    tier: user-db
+---

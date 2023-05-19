@@ -1,0 +1,59 @@
+version: '3.7'
+services:
+  web:
+    build: 
+      context: ./src/A-Form_ReactJS_Front
+    restart: always
+    ports:
+      - 80:80
+
+  user:
+    build:
+      context: ./src/A-Form_Spring_User
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - user-db
+
+  user-db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: aform
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
+  survey:
+    build: 
+      context: ./src/A-Form_NestJS_Survey
+    environment:
+      PORT: 3000
+      DATABASE_URL: survey-db:27017
+      DATABASE_USER: ${DB_USERNAME}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET_NAME}
+      USER_HOSTNAME: http://user:8080
+    depends_on:
+      - survey-db
+    # volumes:
+    #   mongodb_data_container:
+
+  survey-db:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    # TODO: volumes 추가 시 에러 -> 확인 필요
+    # init 추가 필요
+    #volumes:
+    # - mongodb_data_container:/data/db
+    # - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+
+  ai:
+    build: ./src/A-Form_Flask_AIModel
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}

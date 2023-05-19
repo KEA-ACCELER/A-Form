@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-was-ai
+  labels:
+    app: aform
+    tier: was-ai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aform
+      tier: was-ai
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: was-ai
+    spec:
+      nodeSelector:
+        type: worker
+      containers:
+      - name: was-ai
+        image: docker-registry:5000/A-Form_Flask_AIModel
+        env:
+          - name: OPENAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: OPENAI_API_KEY
+                optional: false
+        ports:
+        - containerPort: 5000
+          name: was-ai-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-was-ai
+spec:
+  ports:
+  - name : was-ai-port
+    port: 5000
+    targetPort: was-ai-http
+  selector:
+    app: aform
+    tier: was-ai
+---

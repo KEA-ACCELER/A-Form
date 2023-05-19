@@ -1,0 +1,310 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+spec:
+  nats:
+    native:
+      # Optional, defaults to 3. If it is < 3, set it to 3, that is the minimal requirement.
+      replicas: 3
+      # Optional, authen strategy, "none" or "token", defaults to "none"
+      auth: token
+      # containerTemplate:
+      #   resources:
+      #     requests:
+      #       cpu: "10m"
+      # metricsContainerTemplate:
+      #   resources:
+      #     requests:
+      #       cpu: "10m"
+      # antiAffinity: false
+      # persistence:
+      #   storageClassName: standard
+      #   accessMode: ReadWriteOnce
+      #   volumeSize: 10Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: operate-workflow-sa
+---
+# Similarly you can use a ClusterRole and ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: operate-workflow-role
+rules:
+  - apiGroups:
+      - argoproj.io
+    verbs:
+      - "*"
+    resources:
+      - workflows
+      - workflowtemplates
+      - cronworkflows
+      - clusterworkflowtemplates
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: operate-workflow-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: operate-workflow-role
+subjects:
+  - kind: ServiceAccount
+    name: operate-workflow-sa
+---
+# Info on GitHub Webhook: https://developer.github.com/v3/repos/hooks/#create-a-hook
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github
+spec:
+  service:
+    ports:
+      - name: ci
+        port: 12000
+        targetPort: 12000
+      # - name: example-without-api-credentials
+      #   port: 13000
+      #   targetPort: 13000
+  github:
+    ci-webhook:
+      repositories:
+        - owner: KEA-ACCELER
+          names:
+            - argo-events
+            - argo-workflows
+      # Github application auth. Instead of using personal token `apiToken` use app PEM            
+      # githubApp:
+      #   privateKey:
+      #     name: github-app-pem
+      #     key: privateKey.pem
+      #   appID: <app id>
+      #   installationID: <app installation id>
+      # Github will send events to following port and endpoint
+      webhook:
+        # endpoint to listen to events on
+        endpoint: /github-webhook
+        # port to run internal HTTP server on
+        port: "12000"
+        # HTTP request method to allow. In this case, only POST requests are accepted
+        method: POST
+        # url the event-source will use to register at Github.
+        # This url must be reachable from outside the cluster.
+        # The name for the service is in `<event-source-name>-eventsource-svc` format.
+        # You will need to create an Ingress or Openshift Route for the event-source service so that it can be reached from GitHub.
+        url: https://server.acceler.kr
+      # type of events to listen to.
+      # following listens to everything, hence *
+      # You can find more info on https://developer.github.com/v3/activity/events/types/
+      events:
+        - "*"
+
+      # apiToken refers to K8s secret that stores the github api token
+      # if apiToken is provided controller will create webhook on GitHub repo
+      # +optional
+      apiToken:
+        # Name of the K8s secret that contains the access token
+        name: aform-secret
+        # Key within the K8s secret whose corresponding value (must be base64 encoded) is access token
+        key: GITHUB_TOKEN
+
+      # webhookSecret refers to K8s secret that stores the github hook secret
+      # +optional
+      webhookSecret:
+        # Name of the K8s secret that contains the hook secret
+        name: aform-secret
+        # Key within the K8s secret whose corresponding value (must be base64 encoded) is hook secret
+        key: WEBHOOK_SECRET
+
+      # type of the connection between event-source and Github.
+      # You should set it to false to avoid man-in-the-middle and other attacks.
+      insecure: true
+      # Determines if notifications are sent when the webhook is triggered
+      active: true
+      # The media type used to serialize the payloads
+      contentType: json
+      
+    # example-without-api-credentials:
+    #   owner: "argoproj"
+    #   repository: "argo"
+    #   webhook:
+    #     endpoint: "/push"
+    #     port: "13000"
+    #     method: "POST"
+    #   events:
+    #     - "*"
+    #   webhookSecret:
+    #     name: github-access
+    #     key: secret
+    #   insecure: true
+    #   active: true
+    #   contentType: "json"
+
+    # example-with-secure-connection:
+    #   owner: "argoproj"
+    #   repository: "argo"
+    #   webhook:
+    #     endpoint: "/push"
+    #     port: "13000"
+    #     method: "POST"
+    #     url: "http://myargofakeurl.fake"
+    #     # k8s secret that contains the cert
+    #     serverCertSecret:
+    #       name: my-secret
+    #       key: cert-key
+    #     # k8s secret that contains the private key
+    #     serverKeySecret:
+    #       name: my-secret
+    #       key: pk-key
+    #   events:
+    #     - "push"
+    #     - "delete"
+    #   apiToken:
+    #     name: github-access
+    #     key: token
+    #   webhookSecret:
+    #     name: github-access
+    #     key: secret
+    #   insecure: true
+    #   active: true
+    #   contentType: "json"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-enventsource-svc
+spec:
+  ports:
+    - port: 12000
+      targetPort: 12000
+  selector:
+    eventsource-name: github
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: event-dep
+      eventSourceName: github
+      eventName: ci-webhook
+      # filters:
+      #   data:
+      #     # Type of Github event that triggered the delivery: [pull_request, push, issues, label, ...]
+      #     # https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads
+      #     - path: headers.X-Github-Event
+      #       type: string
+      #       value:
+      #         - pull_request
+      #     - path: body.action
+      #       type: string
+      #       value:
+      #         - opened
+      #         - edited
+      #         - reopened
+      #         - synchronize
+      #     - path: body.pull_request.state
+      #       type: string
+      #       value:
+      #         - open
+      #     - path: body.pull_request.base.ref
+      #       type: string
+      #       value:
+      #         - main
+  triggers:
+    - template:
+        name: github-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: github-
+              spec:
+                entrypoint: main
+                arguments:
+                  parameters:
+                    - name: webhook
+                      # the value will get overridden by event payload from test-dep
+                      value: empty
+                templates:
+                  - name: main
+                    dag:
+                      tasks:
+                        - name: build
+                          template: build
+                        - depends: build
+                          name: sync-argo-cd
+                          template: sync-argo-cd
+                  - name: build
+                    inputs:
+                      artifacts:
+                        - git:
+                            branch: main
+                            depth: 1
+                            repo: "{{workflow.parameters.webhook.repository.clone_url}}"
+                            singleBranch: true
+                          name: source
+                          path: /workspace
+                    container:
+                      image: moby/buildkit:master-rootless
+                      workingDir: /worksapce
+                      env:
+                        - name: BUILDKITD_FLAGS
+                          value: --oci-worker-no-process-sandbox
+                        - name: DOCKER_CONFIG
+                          value: /.docker
+                      command:
+                        - buildctl-daemonless.sh
+                      args:
+                        - build
+                        - --frontend
+                        - dockerfile.v0
+                        - --local
+                        - context=.
+                        - --local
+                        - dockerfile=.
+                        - --output
+                        - type=image,name=docker-registry:5000/{{workflow.parameters.webhook.repository.name}},push=true
+                  - name: sync-argo-cd
+                    container:
+                      image: alpine:3.17
+                      args:
+                        - |-
+                          apk --no-cache add curl
+                          TOKEN=$(curl -s -k $ARGOCD_SERVER/api/v1/session -d "{\"username\":\"admin\",\"password\":\"$PASSWORD\"}" | sed -e 's/{"token":"//' | sed -e 's/"}//')
+                          curl -k -X POST $ARGOCD_SERVER/api/v1/applications/aform/sync -H "Authorization: Bearer $TOKEN"                          
+                      command:
+                        - sh
+                        - -xuce
+                      env:
+                        - name: ARGOCD_SERVER
+                          valueFrom:
+                            secretKeyRef:
+                              key: ARGOCD_SERVER
+                              name: argocd-config
+                        - name: PASSWORD
+                          valueFrom:
+                            secretKeyRef:
+                              key: ARGOCD_PASSWORD
+                              name: argocd-config
+          parameters:
+            - src:
+                dependencyName: event-dep
+              dest: spec.arguments.parameters.0.value
+            - src:
+                dependencyName: event-dep
+                dataKey: body.repository.full_name
+              dest: metadata.name
+              operation: append
+      retryStrategy:
+        steps: 3

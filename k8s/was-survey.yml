@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-was-survey
+  labels:
+    app: aform
+    tier: was-survey
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aform
+      tier: was-survey
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: was-survey
+    spec:
+      nodeSelector:
+        type: worker
+      containers:
+      - name: aform-nest-survey
+        image: docker-registry:5000/A-Form_NestJS_Survey
+        env:
+          - name: PORT
+            value: "3000"
+          - name: DATABASE_URL
+            value: aform-survey-db:27017
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_USERNAME
+                optional: false
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_PASSWORD
+                optional: false
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: AWS_ACCESS_KEY_ID
+                optional: false
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: AWS_SECRET_ACCESS_KEY
+                optional: false
+          - name: S3_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: S3_BUCKET
+                optional: false
+          - name: USER_HOSTNAME
+            value: http://aform-was-user:8080
+        ports:
+        - containerPort: 3000
+          name: was-survey-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-was-survey
+spec:
+  ports:
+  - name : afom-was-survey-port
+    port: 3000
+    targetPort: was-survey-http
+  selector:
+    app: aform
+    tier: was-survey
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-survey-db
+  labels:
+    app: aform
+    tier: survey-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aform
+      tier: survey-db
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: survey-db
+    spec:
+      nodeSelector:
+        type: worker
+      containers:
+      - name: aform-spring-survey-db
+        image: mongo:latest
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_USERNAME
+                optional: false
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: aform-secret
+                key: DB_PASSWORD
+                optional: false
+        ports:
+        - containerPort: 27017
+          name: survey-db-mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-survey-db
+spec:
+  ports:
+  - name : survey-db-port
+    port: 27017
+    targetPort: survey-db-mongo
+  selector:
+    app: aform
+    tier: survey-db
+---

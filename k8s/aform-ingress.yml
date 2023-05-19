@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aform-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aform-ws
+                port:
+                  number: 80
+          - path: /api/user
+            pathType: Prefix
+            backend:
+              service:
+                name: aform-was-user
+                port:
+                  number: 8080
+          - path: /api/surveys
+            pathType: Prefix
+            backend:
+              service:
+                name: aform-was-survey
+                port:
+                  number: 3000
+          - path: /app/ai
+            pathType: Prefix
+            backend:
+              service:
+                name: aform-was-ai
+                port:
+                  number: 5000
+          - path: /github-webhook
+            pathType: Prefix
+            backend:
+              service:
+                name: github-enventsource-svc
+                port:
+                  number: 12000
+---

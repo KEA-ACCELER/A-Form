@@ -10,10 +10,10 @@ resources:
 
 images:
   - name: aform-react-front
-    newName: $(DOCKER_REGISTRY_SERVICE_HOST):5000/aform-react-front
+    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-react-front
   - name: aform-spring-user
-    newName: $(DOCKER_REGISTRY_SERVICE_HOST):5000/aform-spring-user
+    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-spring-user
   - name: aform-nest-survey
-    newName: $(DOCKER_REGISTRY_SERVICE_HOST):5000/aform-nest-survey
+    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-nest-survey
   - name: aform-flask-ai
-    newName: $(DOCKER_REGISTRY_SERVICE_HOST):5000/aform-flask-ai
+    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-flask-ai

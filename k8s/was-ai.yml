@@ -21,7 +21,7 @@ spec:
         type: worker
       containers:
       - name: was-ai
-        image: docker-registry:5000/A-Form_Flask_AIModel
+        image: aform-flask-ai
         env:
           - name: OPENAI_API_KEY
             valueFrom:

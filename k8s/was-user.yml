@@ -21,7 +21,7 @@ spec:
         type: worker
       containers:
       - name: aform-spring-user
-        image: docker-registry:5000/A-Form_Spring_User
+        image: aform-spring-user
         env:
           - name: SPRING_DATASOURCE_URL
             value: jdbc:mysql://aform-was-user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

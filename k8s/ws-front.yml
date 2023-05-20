@@ -21,7 +21,7 @@ spec:
         type: worker
       containers:
       - name: ws-front
-        image: docker-registry:5000/A-Form_ReactJS_Front
+        image: aform-react-front
         ports:
         - containerPort: 80
           name: ws-front-http

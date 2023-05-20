@@ -21,7 +21,7 @@ spec:
         type: worker
       containers:
       - name: aform-nest-survey
-        image: docker-registry:5000/A-Form_NestJS_Survey
+        image: aform-nest-survey
         env:
           - name: PORT
             value: "3000"

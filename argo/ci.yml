@@ -125,7 +125,7 @@ spec:
 
       # type of the connection between event-source and Github.
       # You should set it to false to avoid man-in-the-middle and other attacks.
-      insecure: true
+      insecure: false
       # Determines if notifications are sent when the webhook is triggered
       active: true
       # The media type used to serialize the payloads
@@ -198,29 +198,6 @@ spec:
     - name: event-dep
       eventSourceName: github
       eventName: ci-webhook
-      # filters:
-      #   data:
-      #     # Type of Github event that triggered the delivery: [pull_request, push, issues, label, ...]
-      #     # https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads
-      #     - path: headers.X-Github-Event
-      #       type: string
-      #       value:
-      #         - pull_request
-      #     - path: body.action
-      #       type: string
-      #       value:
-      #         - opened
-      #         - edited
-      #         - reopened
-      #         - synchronize
-      #     - path: body.pull_request.state
-      #       type: string
-      #       value:
-      #         - open
-      #     - path: body.pull_request.base.ref
-      #       type: string
-      #       value:
-      #         - main
   triggers:
     - template:
         name: github-workflow-trigger
@@ -231,7 +208,9 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: github-
+                generateName: github-ci-
+                # annotations:
+                #   container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
               spec:
                 entrypoint: main
                 arguments:
@@ -241,13 +220,46 @@ spec:
                       value: empty
                 templates:
                   - name: main
-                    dag:
-                      tasks:
-                        - name: build
+                    steps:
+                      - - name: build
                           template: build
-                        - depends: build
-                          name: sync-argo-cd
+                      # - - name: scan
+                      #     template: scan
+                      - - name: sync-argo-cd
                           template: sync-argo-cd
+                  # - name: build
+                  #   inputs:
+                  #     artifacts:
+                  #       - git:
+                  #           branch: main
+                  #           depth: 1
+                  #           repo: "{{workflow.parameters.webhook.repository.clone_url}}"
+                  #           singleBranch: true
+                  #         name: source
+                  #         path: /workspace
+                  #   container:
+                  #     image: moby/buildkit:rootless
+                  #     workingDir: /workspace
+                  #     env:
+                  #       - name: BUILDKITD_FLAGS
+                  #         value: --oci-worker-no-process-sandbox
+                  #     command:
+                  #       - buildctl-daemonless.sh
+                  #     args:
+                  #       - build
+                  #       - --frontend
+                  #       - dockerfile.v0
+                  #       - --local
+                  #       - context=.
+                  #       - --local
+                  #       - dockerfile=.
+                  #       - --output
+                  #       - type=image,registry.insecure=true,name=docker-registry:5000/{{workflow.parameters.webhook.repository.name}},push=true
+                  #     securityContext:
+                  #       seccompProfile:
+                  #         type: Unconfined
+                  #       runAsUser: 1000
+                  #       runAsGroup: 1000
                   - name: build
                     inputs:
                       artifacts:
@@ -259,25 +271,31 @@ spec:
                           name: source
                           path: /workspace
                     container:
-                      image: moby/buildkit:master-rootless
-                      workingDir: /worksapce
-                      env:
-                        - name: BUILDKITD_FLAGS
-                          value: --oci-worker-no-process-sandbox
-                        - name: DOCKER_CONFIG
-                          value: /.docker
-                      command:
-                        - buildctl-daemonless.sh
+                      name: kaniko
+                      image: gcr.io/kaniko-project/executor:debug
+                      command: 
+                        - executor
+                      workingDir: /workspace
                       args:
-                        - build
-                        - --frontend
-                        - dockerfile.v0
-                        - --local
-                        - context=.
-                        - --local
-                        - dockerfile=.
-                        - --output
-                        - type=image,name=docker-registry:5000/{{workflow.parameters.webhook.repository.name}},push=true
+                        - --insecure-registry=$(DOCKER_REGISTRY_SERVICE_HOST):5000
+                        - --dockerfile=Dockerfile
+                        - --context=.
+                        - --destination=$(DOCKER_REGISTRY_SERVICE_HOST):5000/{{workflow.parameters.webhook.repository.name}}
+                  # - name: scan
+                  #   container:
+                  #     name: image-scan
+                  #     image: docker.io/aquasec/trivy
+                  #     command:
+                  #     - trivy
+                  #     args:
+                  #     - client
+                  #     - '--severity'
+                  #     - 'CRITICAL'
+                  #     - '--exit-code'
+                  #     - '1'
+                  #     - '--remote'
+                  #     - 'http://trivy-rules.argo.svc:8080'
+                  #     - 'ghcr.io/kmaster8/hello:v3'
                   - name: sync-argo-cd
                     container:
                       image: alpine:3.17
@@ -294,19 +312,20 @@ spec:
                           valueFrom:
                             secretKeyRef:
                               key: ARGOCD_SERVER
-                              name: argocd-config
+                              name: aform-secret
                         - name: PASSWORD
                           valueFrom:
                             secretKeyRef:
                               key: ARGOCD_PASSWORD
-                              name: argocd-config
+                              name: aform-secret
           parameters:
             - src:
                 dependencyName: event-dep
+                dataKey: body
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: event-dep
-                dataKey: body.repository.full_name
+                dataKey: body.repository.name
               dest: metadata.name
               operation: append
       retryStrategy:

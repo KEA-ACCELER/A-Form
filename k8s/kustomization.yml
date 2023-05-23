@@ -8,12 +8,13 @@ resources:
 - was-survey.yml
 - was-ai.yml
 
-images:
-  - name: aform-react-front
-    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-react-front
-  - name: aform-spring-user
-    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-spring-user
-  - name: aform-nest-survey
-    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-nest-survey
-  - name: aform-flask-ai
-    newName: $DOCKER_REGISTRY_SERVICE_HOST:5000/aform-flask-ai
+# if you want to use private docker registry, uncomment this snippet and change the name
+# images:
+#   - name: chromato99/aform-front-web
+#     newName: <private docker registry>/aform-front-web
+#   - name: chromato99/aform-service-user
+#     newName: <private docker registry>/aform-service-user
+#   - name: chromato99/aform-service-survey
+#     newName: <private docker registry>/aform-service-survey
+#   - name: chromato99/aform-service-ai
+#     newName: <private docker registry>/aform-service-ai

@@ -21,7 +21,9 @@ spec:
         type: worker
       containers:
       - name: ws-front
-        image: aform-react-front
+        image: chromato99/aform-front-web
+        imagePullSecrets:
+          - name: regcred
         ports:
         - containerPort: 80
           name: ws-front-http

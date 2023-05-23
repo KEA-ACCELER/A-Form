@@ -28,6 +28,13 @@ spec:
                 name: aform-was-survey
                 port:
                   number: 3000
+          - path: /api/post
+            pathType: Prefix
+            backend:
+              service:
+                name: aform-was-post
+                port:
+                  number: 8080
           - path: /app/ai
             pathType: Prefix
             backend:

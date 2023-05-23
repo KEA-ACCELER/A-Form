@@ -20,8 +20,10 @@ spec:
       nodeSelector:
         type: worker
       containers:
-      - name: was-ai
-        image: aform-flask-ai
+      - name: aform-service-ai
+        image: chromato99/aform-service-ai
+        imagePullSecrets:
+          - name: regcred
         env:
           - name: OPENAI_API_KEY
             valueFrom:

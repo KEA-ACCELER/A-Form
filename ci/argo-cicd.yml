@@ -75,11 +75,11 @@ spec:
       repositories:
         - owner: KEA-ACCELER
           names:
-            - A-Form_ReactJS_Front
-            - A-Form_Spring_User
-            - A-Form_NestJS_Survey
-            - A-Form_Spring_Post
-            - A-Form_Flask_AIModel
+            - aform-front-web
+            - aform-service-user
+            - aform-service-survey
+            - aform-service-post
+            - aform-service-ai
       # Github application auth. Instead of using personal token `apiToken` use app PEM            
       # githubApp:
       #   privateKey:
@@ -209,6 +209,7 @@ spec:
               kind: Workflow
               metadata:
                 generateName: github-ci-
+                # if you want to use buildkit, uncomment the following (uncomment the build template too)
                 # annotations:
                 #   container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
               spec:
@@ -216,7 +217,7 @@ spec:
                 arguments:
                   parameters:
                     - name: webhook
-                      # the value will get overridden by event payload from test-dep
+                      # the value will get overridden by event payload from event-dep
                       value: empty
                 templates:
                   - name: main
@@ -227,6 +228,7 @@ spec:
                       #     template: scan
                       - - name: sync-argo-cd
                           template: sync-argo-cd
+                  # if you want to use buildkit, uncomment the following (uncomment the annotations in workflow too)
                   # - name: build
                   #   inputs:
                   #     artifacts:
@@ -254,7 +256,7 @@ spec:
                   #       - --local
                   #       - dockerfile=.
                   #       - --output
-                  #       - type=image,registry.insecure=true,name=docker-registry:5000/{{workflow.parameters.webhook.repository.name}},push=true
+                  #       - type=image,name=<private docker-registry>/{{workflow.parameters.webhook.repository.name}},push=true
                   #     securityContext:
                   #       seccompProfile:
                   #         type: Unconfined
@@ -277,10 +279,22 @@ spec:
                         - executor
                       workingDir: /workspace
                       args:
-                        - --insecure-registry=$(DOCKER_REGISTRY_SERVICE_HOST):5000
+                        # - --insecure-registry=<private docker-registry> # if you are using a private docker registry as insecure (http)
                         - --dockerfile=Dockerfile
                         - --context=.
-                        - --destination=$(DOCKER_REGISTRY_SERVICE_HOST):5000/{{workflow.parameters.webhook.repository.name}}
+                        # - --destination=<private docker-registry>/{{workflow.parameters.webhook.repository.name}} # if you are using a private docker registry
+                        - --destination=chromato99/{{workflow.parameters.webhook.repository.name}}
+                      volumeMounts:
+                        - name: kaniko-secret
+                          mountPath: /kaniko/.docker
+                    volumes:
+                      - name: kaniko-secret
+                        secret:
+                          secretName: regcred
+                          items:
+                            - key: .dockerconfigjson
+                              path: config.json
+                  # TODO: scan image with trivy
                   # - name: scan
                   #   container:
                   #     name: image-scan
@@ -302,7 +316,7 @@ spec:
                       args:
                         - |-
                           apk --no-cache add curl
-                          TOKEN=$(curl -s -k $ARGOCD_SERVER/api/v1/session -d "{\"username\":\"admin\",\"password\":\"$PASSWORD\"}" | sed -e 's/{"token":"//' | sed -e 's/"}//')
+                          TOKEN=$(curl -s -k $ARGOCD_SERVER/api/v1/session -d "{\"username\":\"admin\",\"password\":\"$ARGOCD_PASSWORD\"}" | sed -e 's/{"token":"//' | sed -e 's/"}//')
                           curl -k -X POST $ARGOCD_SERVER/api/v1/applications/aform/sync -H "Authorization: Bearer $TOKEN"                          
                       command:
                         - sh
@@ -313,7 +327,7 @@ spec:
                             secretKeyRef:
                               key: ARGOCD_SERVER
                               name: aform-secret
-                        - name: PASSWORD
+                        - name: ARGOCD_PASSWORD
                           valueFrom:
                             secretKeyRef:
                               key: ARGOCD_PASSWORD

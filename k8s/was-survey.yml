@@ -20,8 +20,10 @@ spec:
       nodeSelector:
         type: worker
       containers:
-      - name: aform-nest-survey
-        image: aform-nest-survey
+      - name: aform-service-survey
+        image: chromato99/aform-service-survey
+        imagePullSecrets:
+          - name: regcred
         env:
           - name: PORT
             value: "3000"
@@ -98,7 +100,7 @@ spec:
       nodeSelector:
         type: worker
       containers:
-      - name: aform-spring-survey-db
+      - name: aform-survey-db
         image: mongo:latest
         env:
           - name: MONGO_INITDB_ROOT_USERNAME

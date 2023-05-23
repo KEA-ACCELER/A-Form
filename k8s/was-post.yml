@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aform-was-user
+  name: aform-was-post
   labels:
     app: aform
-    tier: was-user
+    tier: was-post
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: aform
-      tier: was-user
+      tier: was-post
   template:
     metadata:
       labels:
         app: aform
-        tier: was-user
+        tier: was-post
     spec:
       nodeSelector:
         type: worker
       containers:
-      - name: aform-service-user
-        image: chromato99/aform-service-user
+      - name: aform-service-post
+        image: chromato99/aform-service-post
         imagePullSecrets:
           - name: regcred
         env:
           - name: SPRING_DATASOURCE_URL
-            value: jdbc:mysql://aform-user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+            value: jdbc:mysql://aform-post-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
           - name: SPRING_DATASOURCE_USERNAME
             valueFrom:
               secretKeyRef:
@@ -39,52 +39,50 @@ spec:
                 name: aform-secret
                 key: DB_PASSWORD
                 optional: false
-          - name: JWT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: aform-secret
-                key: JWT_SECRET
-                optional: false
+          - name: SURVEY_SERVER_URL
+            value: http://aform-was-survey:3000/api/surveys
+          - name: USER_SERVER_URL
+            value: http://aform-was-user:8080/api/user
         ports:
         - containerPort: 8080
-          name: was-user-http
+          name: was-post-http
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: aform-was-user
+  name: aform-was-post
 spec:
   ports:
-  - name : afom-was-user-port
+  - name : afom-was-post-port
     port: 8080
-    targetPort: was-user-http
+    targetPort: was-post-http
   selector:
     app: aform
-    tier: was-user
+    tier: was-post
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aform-user-db
+  name: aform-post-db
   labels:
     app: aform
-    tier: user-db
+    tier: post-db
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: aform
-      tier: user-db
+      tier: post-db
   template:
     metadata:
       labels:
         app: aform
-        tier: user-db
+        tier: post-db
     spec:
       nodeSelector:
         type: worker
       containers:
-      - name: aform-user-db
+      - name: aform-post-db
         image: mysql
         env:
           - name: MYSQL_DATABASE
@@ -97,18 +95,18 @@ spec:
                 optional: false
         ports:
         - containerPort: 3306
-          name: user-db-mysql
+          name: post-db-mysql
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: aform-user-db
+  name: aform-post-db
 spec:
   ports:
-  - name : user-db-port
+  - name : post-db-port
     port: 3306
-    targetPort: user-db-mysql
+    targetPort: post-db-mysql
   selector:
     app: aform
-    tier: user-db
+    tier: post-db
 ---

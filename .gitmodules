@@ -1,0 +1,15 @@
+[submodule "src/aform-front-web"]
+	path = src/aform-front-web
+	url = https://github.com/KEA-ACCELER/aform-front-web.git
+[submodule "src/aform-service-user"]
+	path = src/aform-service-user
+	url = https://github.com/KEA-ACCELER/aform-service-user.git
+[submodule "src/aform-service-survey"]
+	path = src/aform-service-survey
+	url = https://github.com/KEA-ACCELER/aform-service-survey.git
+[submodule "src/aform-service-post"]
+	path = src/aform-service-post
+	url = https://github.com/KEA-ACCELER/aform-service-post.git
+[submodule "src/aform-service-ai"]
+	path = src/aform-service-ai
+	url = https://github.com/KEA-ACCELER/aform-service-ai.git

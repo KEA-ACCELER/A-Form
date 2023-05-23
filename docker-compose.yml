@@ -2,14 +2,14 @@ version: '3.7'
 services:
   web:
     build: 
-      context: ./src/A-Form_ReactJS_Front
+      context: ./src/aform-front-web
     restart: always
     ports:
       - 80:80
 
   user:
     build:
-      context: ./src/A-Form_Spring_User
+      context: ./src/aform-service-user
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
@@ -26,7 +26,7 @@ services:
 
   survey:
     build: 
-      context: ./src/A-Form_NestJS_Survey
+      context: ./src/aform-service-survey
     environment:
       PORT: 3000
       DATABASE_URL: survey-db:27017
@@ -53,7 +53,25 @@ services:
     # - mongodb_data_container:/data/db
     # - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
 
+  post:
+    build:
+      context: ./src/aform-service-post
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://post-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SURVEY_SERVER_URL: http://survey:3000/api/surveys
+      USER_SERVER_URL: http://user:8080/app/user
+    depends_on:
+      - post-db
+
+  post-db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: aform
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
   ai:
-    build: ./src/A-Form_Flask_AIModel
+    build: ./src/aform-service-ai
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}

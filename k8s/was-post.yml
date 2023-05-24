@@ -17,8 +17,6 @@ spec:
         app: aform
         tier: was-post
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-service-post
         image: chromato99/aform-service-post

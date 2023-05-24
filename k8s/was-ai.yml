@@ -17,8 +17,6 @@ spec:
         app: aform
         tier: was-ai
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-service-ai
         image: chromato99/aform-service-ai

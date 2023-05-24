@@ -17,8 +17,6 @@ spec:
         app: aform
         tier: ws-front
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: ws-front
         image: chromato99/aform-front-web

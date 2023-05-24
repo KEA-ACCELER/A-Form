@@ -81,8 +81,6 @@ spec:
         app: aform
         tier: user-db
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-user-db
         image: mysql

@@ -312,7 +312,7 @@ spec:
                   #     - 'ghcr.io/kmaster8/hello:v3'
                   - name: sync-argo-cd
                     container:
-                      image: alpine:3.17
+                      image: alpine:latest
                       args:
                         - |-
                           apk --no-cache add curl

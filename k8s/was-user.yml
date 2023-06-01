@@ -17,8 +17,6 @@ spec:
         app: aform
         tier: was-user
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-service-user
         image: chromato99/aform-service-user

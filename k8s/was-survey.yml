@@ -17,8 +17,6 @@ spec:
         app: aform
         tier: was-survey
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-service-survey
         image: chromato99/aform-service-survey

@@ -11,7 +11,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: aform-ws
+                name: aform-ws-front
                 port:
                   number: 80
           - path: /api/user

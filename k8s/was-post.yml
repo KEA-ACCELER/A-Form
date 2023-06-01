@@ -77,8 +77,6 @@ spec:
         app: aform
         tier: post-db
     spec:
-      nodeSelector:
-        type: worker
       containers:
       - name: aform-post-db
         image: mysql

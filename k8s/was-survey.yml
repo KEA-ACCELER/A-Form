@@ -55,7 +55,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: aform-secret
-                key: S3_BUCKET
+                key: S3_BUCKET_NAME
                 optional: false
           - name: USER_HOSTNAME
             value: http://aform-was-user:8080

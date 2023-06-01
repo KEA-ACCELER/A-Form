@@ -16,7 +16,7 @@ You can deploy all services of aform to kubernetes or test them using docker com
 
 - Create .env file by using .env.template
 - Optional: Create a namespace for aform
-- Create a secret by using create-secret.sh
+- Create a secret by using `bash create-secret.sh`
 - Deploy all services by using below command
     
 ```bash

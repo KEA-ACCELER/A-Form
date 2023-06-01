@@ -6,6 +6,7 @@ resources:
 - ws-front.yml
 - was-user.yml
 - was-survey.yml
+- was-post.yml
 - was-ai.yml
 
 # if you want to use private docker registry, uncomment this snippet and change the name
@@ -16,5 +17,7 @@ resources:
 #     newName: <private docker registry>/aform-service-user
 #   - name: chromato99/aform-service-survey
 #     newName: <private docker registry>/aform-service-survey
+#   - name: chromato99/aform-service-post
+#     newName: <private docker registry>/aform-service-post
 #   - name: chromato99/aform-service-ai
 #     newName: <private docker registry>/aform-service-ai

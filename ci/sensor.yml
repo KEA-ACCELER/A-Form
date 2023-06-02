@@ -27,9 +27,12 @@ spec:
                 entrypoint: main
                 arguments:
                   parameters:
-                    - name: webhook
+                    - name: repository_name
                       # the value will get overridden by event payload from event-dep
-                      value: empty
+                      value: example
+                    - name: repository_url
+                      # the value will get overridden by event payload from event-dep
+                      value: example.com
                 templates:
                   - name: main
                     steps:
@@ -46,7 +49,7 @@ spec:
                   #       - git:
                   #           branch: main
                   #           depth: 1
-                  #           repo: "{{workflow.parameters.webhook.repository.clone_url}}"
+                  #           repo: "{{workflow.parameters.repository_url}}"
                   #           singleBranch: true
                   #         name: source
                   #         path: /workspace
@@ -67,7 +70,7 @@ spec:
                   #       - --local
                   #       - dockerfile=.
                   #       - --output
-                  #       - type=image,name=<private docker-registry>/{{workflow.parameters.webhook.repository.name}},push=true
+                  #       - type=image,name=<private docker-registry>/{{workflow.parameters.repository_name}},push=true
                   #     securityContext:
                   #       seccompProfile:
                   #         type: Unconfined
@@ -79,7 +82,7 @@ spec:
                         - git:
                             branch: main
                             depth: 1
-                            repo: "{{workflow.parameters.webhook.repository.clone_url}}"
+                            repo: "{{workflow.parameters.repository_url}}"
                             singleBranch: true
                           name: source
                           path: /workspace
@@ -93,8 +96,8 @@ spec:
                         # - --insecure-registry=<private docker-registry> # if you are using a private docker registry as insecure (http)
                         - --dockerfile=Dockerfile
                         - --context=.
-                        # - --destination=<private docker-registry>/{{workflow.parameters.webhook.repository.name}}:latest # if you are using a private docker registry
-                        - --destination=chromato99/{{workflow.parameters.webhook.repository.name}}:latest
+                        # - --destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest # if you are using a private docker registry
+                        - --destination=chromato99/{{workflow.parameters.repository_name}}:latest
                       volumeMounts:
                         - name: kaniko-secret
                           mountPath: /kaniko/.docker
@@ -128,7 +131,7 @@ spec:
                         - |-
                           apk --no-cache add curl
                           TOKEN=$(curl -s -k $ARGOCD_SERVER/api/v1/session -d "{\"username\":\"admin\",\"password\":\"$ARGOCD_PASSWORD\"}" | sed -e 's/{"token":"//' | sed -e 's/"}//')
-                          curl -k -X POST $ARGOCD_SERVER/api/v1/applications/aform/sync -H "Authorization: Bearer $TOKEN"                          
+                          curl -k -I -X POST $ARGOCD_SERVER/api/v1/applications/aform/sync -H "Authorization: Bearer $TOKEN"                          
                       command:
                         - sh
                         - -xuce
@@ -146,12 +149,16 @@ spec:
           parameters:
             - src:
                 dependencyName: event-dep
-                dataKey: body
+                dataKey: body.repository.name
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: event-dep
-                dataKey: body.repository.name
-              dest: metadata.name
+                dataKey: body.repository.clone_url
+              dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: event-dep
+                dataTemplate: "{{ .Input.body.repository.name }}-"
+              dest: metadata.generateName
               operation: append
       retryStrategy:
         steps: 3

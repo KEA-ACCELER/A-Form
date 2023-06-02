@@ -42,11 +42,4 @@ spec:
                 name: aform-was-ai
                 port:
                   number: 5000
-          - path: /github-webhook
-            pathType: Prefix
-            backend:
-              service:
-                name: github-enventsource-svc
-                port:
-                  number: 12000
 ---

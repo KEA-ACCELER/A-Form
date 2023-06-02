@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: aform-service-ai
-        image: chromato99/aform-service-ai
+        image: chromato99/aform-service-ai:latest
         imagePullSecrets:
           - name: regcred
         env:

@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: aform-service-survey
-        image: chromato99/aform-service-survey
+        image: chromato99/aform-service-survey:latest
         imagePullSecrets:
           - name: regcred
         env:
@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
       - name: aform-survey-db
-        image: mongo:latest
+        image: mongo:6
         env:
           - name: MONGO_INITDB_ROOT_USERNAME
             valueFrom:

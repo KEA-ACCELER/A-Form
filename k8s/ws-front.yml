@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: ws-front
-        image: chromato99/aform-front-web
+        image: chromato99/aform-front-web:latest
         imagePullSecrets:
           - name: regcred
         ports:

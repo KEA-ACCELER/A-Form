@@ -9,15 +9,19 @@ resources:
 - was-post.yml
 - was-ai.yml
 
-# if you want to use private docker registry, uncomment this snippet and change the name
+# if you want to use private docker registry or specific image tag, uncomment this snippet and change the name
 # images:
-#   - name: chromato99/aform-front-web
-#     newName: <private docker registry>/aform-front-web
-#   - name: chromato99/aform-service-user
-#     newName: <private docker registry>/aform-service-user
-#   - name: chromato99/aform-service-survey
-#     newName: <private docker registry>/aform-service-survey
-#   - name: chromato99/aform-service-post
-#     newName: <private docker registry>/aform-service-post
-#   - name: chromato99/aform-service-ai
-#     newName: <private docker registry>/aform-service-ai
+#   - name: chromato99/aform-front-web:latest
+#     newName: <private docker registry>/aform-front-web:<tag>
+#   - name: chromato99/aform-service-user:latest
+#     newName: <private docker registry>/aform-service-user:<tag>
+#   - name: chromato99/aform-service-survey:latest
+#     newName: <private docker registry>/aform-service-survey:<tag>
+#   - name: chromato99/aform-service-post:latest
+#     newName: <private docker registry>/aform-service-post:<tag>
+#   - name: chromato99/aform-service-ai:latest
+#     newName: <private docker registry>/aform-service-ai:<tag>
+#   - name: mysql:lastest
+#     newName: <private docker registry>/mysql:<tag>
+#   - name: mongo:lastest
+#     newName: <private docker registry>/mongo:<tag>

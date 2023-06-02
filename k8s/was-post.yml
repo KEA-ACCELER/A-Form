@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: aform-service-post
-        image: chromato99/aform-service-post
+        image: chromato99/aform-service-post:latest
         imagePullSecrets:
           - name: regcred
         env:
@@ -79,7 +79,7 @@ spec:
     spec:
       containers:
       - name: aform-post-db
-        image: mysql
+        image: mysql:8
         env:
           - name: MYSQL_DATABASE
             value: aform

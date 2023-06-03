@@ -20,8 +20,6 @@ spec:
       containers:
       - name: aform-service-survey
         image: chromato99/aform-service-survey:latest
-        imagePullSecrets:
-          - name: regcred
         env:
           - name: PORT
             value: "3000"
@@ -62,6 +60,8 @@ spec:
         ports:
         - containerPort: 3000
           name: was-survey-http
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

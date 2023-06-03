@@ -20,8 +20,6 @@ spec:
       containers:
       - name: aform-service-ai
         image: chromato99/aform-service-ai:latest
-        imagePullSecrets:
-          - name: regcred
         env:
           - name: OPENAI_API_KEY
             valueFrom:
@@ -32,6 +30,8 @@ spec:
         ports:
         - containerPort: 5000
           name: was-ai-http
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

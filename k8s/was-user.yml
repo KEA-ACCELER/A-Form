@@ -20,8 +20,6 @@ spec:
       containers:
       - name: aform-service-user
         image: chromato99/aform-service-user:latest
-        imagePullSecrets:
-          - name: regcred
         env:
           - name: SPRING_DATASOURCE_URL
             value: jdbc:mysql://aform-user-db:3306/aform?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -46,6 +44,8 @@ spec:
         ports:
         - containerPort: 8080
           name: was-user-http
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

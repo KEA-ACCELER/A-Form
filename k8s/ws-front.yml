@@ -20,11 +20,11 @@ spec:
       containers:
       - name: ws-front
         image: chromato99/aform-front-web:latest
-        imagePullSecrets:
-          - name: regcred
         ports:
         - containerPort: 80
           name: ws-front-http
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: v1
 kind: Service

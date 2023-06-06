@@ -76,6 +76,18 @@ spec:
     app: aform
     tier: was-survey
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: survey-db-pvc
+spec:
+  storageClassName: ceph-block
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -114,6 +126,13 @@ spec:
         ports:
         - containerPort: 27017
           name: survey-db-mongo
+        volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: survey-db-pvc
 ---
 apiVersion: v1
 kind: Service

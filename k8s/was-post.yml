@@ -58,6 +58,18 @@ spec:
     app: aform
     tier: was-post
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: post-db-pvc
+spec:
+  storageClassName: ceph-block
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -92,6 +104,13 @@ spec:
         ports:
         - containerPort: 3306
           name: post-db-mysql
+        volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: post-db-pvc
 ---
 apiVersion: v1
 kind: Service

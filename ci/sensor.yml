@@ -24,6 +24,8 @@ spec:
                 # annotations:
                 #   container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
               spec:
+                imagePullSecrets:
+                  - name: regcred
                 entrypoint: main
                 arguments:
                   parameters:

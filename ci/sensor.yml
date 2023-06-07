@@ -101,7 +101,7 @@ spec:
                         - --build-arg REACT_APP_USER_API_URL=$REACT_APP_USER_API_URL
                         - --build-arg REACT_APP_SURVEY_API_URL=$REACT_APP_SURVEY_API_URL
                         - --build-arg REACT_APP_POST_API_URL=$REACT_APP_POST_API_URL
-                        - --build-arg REACT_APP_AI_URL=$REACT_APP_AI_URL
+                        - --build-arg REACT_APP_AI_API_URL=$REACT_APP_AI_API_URL
                         # - --destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest # if you are using a private docker registry
                         - --destination=chromato99/{{workflow.parameters.repository_name}}:latest
                       env:
@@ -120,10 +120,10 @@ spec:
                             secretKeyRef:
                               key: REACT_APP_POST_API_URL
                               name: aform-secret
-                        - name: REACT_APP_AI_URL
+                        - name: REACT_APP_AI_API_URL
                           valueFrom:
                             secretKeyRef:
-                              key: REACT_APP_AI_URL
+                              key: REACT_APP_AI_API_URL
                               name: aform-secret
                       volumeMounts:
                         - name: kaniko-secret

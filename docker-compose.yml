@@ -3,6 +3,11 @@ services:
   web:
     build: 
       context: ./src/aform-front-web
+      args:
+        - REACT_APP_USER_API_URL=${REACT_APP_USER_API_URL}
+        - REACT_APP_SURVEY_API_URL=${REACT_APP_SURVEY_API_URL}
+        - REACT_APP_POST_API_URL=${REACT_APP_POST_API_URL}
+        - REACT_APP_AI_API_URL=${REACT_APP_AI_API_URL}
     restart: always
     ports:
       - 80:80

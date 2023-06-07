@@ -27,7 +27,7 @@ services:
       - user-db
 
   user-db:
-    image: mysql:latest
+    image: mysql:8
     environment:
       MYSQL_DATABASE: aform
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -40,17 +40,20 @@ services:
       DATABASE_URL: survey-db:27017
       DATABASE_USER: ${DB_USERNAME}
       DATABASE_PASSWORD: ${DB_PASSWORD}
+      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      REGION: ${REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      S3_BUCKET: ${S3_BUCKET_NAME}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
       USER_HOSTNAME: http://user:8080
+      REDIS_HOST: survey-cache
     depends_on:
       - survey-db
     # volumes:
     #   mongodb_data_container:
 
   survey-db:
-    image: mongo:latest
+    image: mongo:6
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
@@ -60,6 +63,10 @@ services:
     #volumes:
     # - mongodb_data_container:/data/db
     # - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+  survey-cache:
+    image: redis:7
+    ports:
+      - 6379:6379
 
   post:
     build:
@@ -74,7 +81,7 @@ services:
       - post-db
 
   post-db:
-    image: mysql:latest
+    image: mysql:8
     environment:
       MYSQL_DATABASE: aform
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}

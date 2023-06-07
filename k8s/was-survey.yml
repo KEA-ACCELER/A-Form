@@ -69,6 +69,8 @@ spec:
                 optional: false
           - name: USER_HOSTNAME
             value: http://aform-was-user:8080
+          - name: REDIS_HOST
+            value: aform-survey-cache
         ports:
         - containerPort: 3000
           name: was-survey-http
@@ -160,4 +162,45 @@ spec:
   selector:
     app: aform
     tier: survey-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aform-survey-cache
+  labels:
+    app: aform
+    tier: survey-cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aform
+      tier: survey-cache
+  template:
+    metadata:
+      labels:
+        app: aform
+        tier: survey-cache
+    spec:
+      containers:
+      - name: aform-survey-cache
+        image: redis:7
+        ports:
+        - containerPort: 6379
+          name: survey-cache-redis
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aform-survey-cache
+spec:
+  ports:
+  - name : survey-cache-port
+    port: 6379
+    targetPort: survey-cache-redis
+  selector:
+    app: aform
+    tier: survey-cache
 ---

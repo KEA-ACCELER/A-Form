@@ -187,7 +187,7 @@ spec:
         image: redis:7
         ports:
         - containerPort: 6379
-          name: survey-cache-redis
+          name: survey-cache
       imagePullSecrets:
         - name: regcred
 ---
@@ -199,7 +199,7 @@ spec:
   ports:
   - name : survey-cache-port
     port: 6379
-    targetPort: survey-cache-redis
+    targetPort: survey-cache
   selector:
     app: aform
     tier: survey-cache

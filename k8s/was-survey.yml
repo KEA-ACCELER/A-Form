@@ -141,6 +141,8 @@ spec:
         volumeMounts:
             - name: mongo-persistent-storage
               mountPath: /data/db
+      imagePullSecrets:
+        - name: regcred
       volumes:
         - name: mongo-persistent-storage
           persistentVolumeClaim:

@@ -95,15 +95,15 @@ spec:
                         - executor
                       workingDir: /workspace
                       args:
-                        # - --insecure-registry=<private docker-registry> # if you are using a private docker registry as insecure (http)
-                        - --dockerfile=Dockerfile
-                        - --context=.
-                        - --build-arg=REACT_APP_USER_API_URL=$REACT_APP_USER_API_URL
-                        - --build-arg=REACT_APP_SURVEY_API_URL=$REACT_APP_SURVEY_API_URL
-                        - --build-arg=REACT_APP_POST_API_URL=$REACT_APP_POST_API_URL
-                        - --build-arg=REACT_APP_AI_API_URL=$REACT_APP_AI_API_URL
-                        # - --destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest # if you are using a private docker registry
-                        - --destination=chromato99/{{workflow.parameters.repository_name}}:latest
+                        # - "--insecure-registry=<private docker-registry>"" # if you are using a private docker registry as insecure (http)
+                        - "--dockerfile=Dockerfile"
+                        - "--context=."
+                        - "--build-arg=REACT_APP_USER_API_URL"
+                        - "--build-arg=REACT_APP_SURVEY_API_URL"
+                        - "--build-arg=REACT_APP_POST_API_URL"
+                        - "--build-arg=REACT_APP_AI_API_URL"
+                        # - "--destination=<private docker-registry>/{{workflow.parameters.repository_name}}:latest" # if you are using a private docker registry
+                        - "--destination=chromato99/{{workflow.parameters.repository_name}}:latest"
                       env:
                         - name: REACT_APP_USER_API_URL
                           valueFrom:

@@ -35,7 +35,7 @@ spec:
                 name: aform-was-post
                 port:
                   number: 8080
-          - path: /app/ai
+          - path: /chatbot
             pathType: Prefix
             backend:
               service:

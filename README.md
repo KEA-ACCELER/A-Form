@@ -8,9 +8,13 @@ You can deploy all services of aform to kubernetes or test them using docker com
 
 ### Prerequisites
 
-- Install kubernetes and kubectl
-- Install Ingress Controller (e.g. nginx-ingress)
+You need to install below tools before deploying aform to kubernetes.<br/>
+You can check example helm customization files in `example-values` directory.
+
+- Install kubernetes and kubectl (e.g. [Guide](https://kubernetes.io/docs/setup/))
+- Install Ingress Controller (e.g. [nginx-ingress](https://kubernetes.github.io/ingress-nginx/deploy/))
 - Optional: Install ArgoCD for continuous deployment
+- Install Rook for Ceph storage [Guide](https://rook.io/docs/rook/v1.7/ceph-quickstart.htmlhttps://rook.io/docs/rook/v1.11/Getting-Started/quickstart/)
 
 ### Deploy
 

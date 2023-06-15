@@ -14,7 +14,7 @@ You can check example helm customization files in `example-values` directory.
 - Install kubernetes and kubectl (e.g. [Guide](https://kubernetes.io/docs/setup/))
 - Install Ingress Controller (e.g. [nginx-ingress](https://kubernetes.github.io/ingress-nginx/deploy/))
 - Optional: Install ArgoCD for continuous deployment
-- Install Rook for Ceph storage [Guide](https://rook.io/docs/rook/v1.7/ceph-quickstart.htmlhttps://rook.io/docs/rook/v1.11/Getting-Started/quickstart/)
+- Install Rook for Ceph storage (e.g. [Guide](https://rook.io/docs/rook/v1.7/ceph-quickstart.htmlhttps://rook.io/docs/rook/v1.11/Getting-Started/quickstart/))
 
 ### Deploy
 
